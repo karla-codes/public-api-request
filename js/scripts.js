@@ -55,7 +55,10 @@ function createUserModal(users, card) {
         /(\d{3})(\d{3})(\d+)/,
         '($1) $2-$3'
       );
-      // const userDOB;
+      const userDOB = user.dob.date
+        .replace(/T\d+\D\d+\D\d+\D\d+Z/g, '')
+        .replace(/[^0-9]/g, '');
+      const formattedDOB = userDOB.replace(/(\d{4})(\d{2})(\d{2})/, '$2/$3/$1');
       const modalHTML = `
         <div class="modal-container">
           <div class="modal">
@@ -68,7 +71,7 @@ function createUserModal(users, card) {
                 <hr>
                 <p class="modal-text">${formattedPhone}</p>
                 <p class="modal-text">${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
-                <p class="modal-text">Birthday: ${user.dob.date}</p>
+                <p class="modal-text">Birthday: ${formattedDOB}</p>
             </div>
           </div>
           <div class="modal-btn-container">
