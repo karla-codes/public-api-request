@@ -47,23 +47,28 @@ function addClickEvent(users) {
 
 function createUserModal(users, card) {
   const cardName = card.querySelector('#name').textContent;
-
-  for (let i = 0; i < users.length; i++) {
-    if (users[i].name.first + ' ' + users[i].name.last === cardName) {
+  users.forEach(user => {
+    if (user.name.first + ' ' + user.name.last === cardName) {
       const body = document.querySelector('body');
+      const userPhone = user.cell.replace(/[^0-9]/g, '');
+      const formattedPhone = userPhone.replace(
+        /(\d{3})(\d{3})(\d+)/,
+        '($1) $2-$3'
+      );
+      // const userDOB;
       const modalHTML = `
         <div class="modal-container">
           <div class="modal">
             <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
             <div class="modal-info-container">
-                <img class="modal-img" src="${users[i].picture.large}" alt="profile picture">
-                <h3 id="name" class="modal-name cap">${users[i].name.first} ${users[i].name.last}</h3>
-                <p class="modal-text">${users[i].email}</p>
-                <p class="modal-text cap">${users[i].location.city}</p>
+                <img class="modal-img" src="${user.picture.large}" alt="profile picture">
+                <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
+                <p class="modal-text">${user.email}</p>
+                <p class="modal-text cap">${user.location.city}</p>
                 <hr>
-                <p class="modal-text">${users[i].phone}</p>
-                <p class="modal-text">${users[i].location.street.number} ${users[i].location.street.name}, ${users[i].location.city}, ${users[i].location.state} ${users[i].location.postcode}</p>
-                <p class="modal-text">Birthday: ${users[i].dob.date}</p>
+                <p class="modal-text">${formattedPhone}</p>
+                <p class="modal-text">${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
+                <p class="modal-text">Birthday: ${user.dob.date}</p>
             </div>
           </div>
           <div class="modal-btn-container">
@@ -74,7 +79,7 @@ function createUserModal(users, card) {
       `;
       body.insertAdjacentHTML('beforeend', modalHTML);
     }
-  }
+  });
 
   const exitModalButton = document.querySelector('#modal-close-btn');
   exitModalButton.addEventListener('click', removeModal);
