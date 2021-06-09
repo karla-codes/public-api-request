@@ -9,6 +9,30 @@ fetch(randomUserURL)
   );
 
 /**
+ * Adds an event listener to each employee info card that
+ * listens for a click and runs createUserModal
+ *
+ * @param {array} users
+ */
+function addClickEvent(users) {
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      createUserModal(users, card);
+    });
+  });
+}
+
+/**
+ * Removes modal when 'x' button on modal is clicked
+ *
+ */
+function removeModal() {
+  const modal = document.querySelector('.modal-container');
+  modal.remove();
+}
+
+/**
  * Creates a card for each employee that displays their first and last name,
  * email, and location using the information fetched from the Random User API.
  *
@@ -36,15 +60,13 @@ function createUser(users) {
   addClickEvent(users);
 }
 
-function addClickEvent(users) {
-  const cards = document.querySelectorAll('.card');
-  cards.forEach(card => {
-    card.addEventListener('click', () => {
-      createUserModal(users, card);
-    });
-  });
-}
-
+/**
+ * Creates and displays a modal with additional information about the
+ * employee who's card was clicked.
+ *
+ * @param {array} users
+ * @param {array} card
+ */
 function createUserModal(users, card) {
   const cardName = card.querySelector('#name').textContent;
   users.forEach(user => {
@@ -86,9 +108,4 @@ function createUserModal(users, card) {
 
   const exitModalButton = document.querySelector('#modal-close-btn');
   exitModalButton.addEventListener('click', removeModal);
-}
-
-function removeModal() {
-  const modal = document.querySelector('.modal-container');
-  modal.remove();
 }
