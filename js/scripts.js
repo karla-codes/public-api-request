@@ -8,6 +8,12 @@ fetch(randomUserURL)
     console.log('There was an error while processing request', err)
   );
 
+/**
+ * Creates a card for each employee that displays their first and last name,
+ * email, and location using the information fetched from the Random User API.
+ *
+ * @param {array} users
+ */
 function createUser(users) {
   const userCards = users
     .map(user => {
@@ -27,4 +33,54 @@ function createUser(users) {
     .join('');
 
   cardGallery.insertAdjacentHTML('beforeend', userCards);
+  addClickEvent(users);
+}
+
+function addClickEvent(users) {
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      createUserModal(users, card);
+    });
+  });
+}
+
+function createUserModal(users, card) {
+  const cardName = card.querySelector('#name').textContent;
+
+  for (let i = 0; i < users.length; i++) {
+    if (users[i].name.first + ' ' + users[i].name.last === cardName) {
+      const body = document.querySelector('body');
+      const modalHTML = `
+        <div class="modal-container">
+          <div class="modal">
+            <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+            <div class="modal-info-container">
+                <img class="modal-img" src="${users[i].picture.large}" alt="profile picture">
+                <h3 id="name" class="modal-name cap">${users[i].name.first} ${users[i].name.last}</h3>
+                <p class="modal-text">${users[i].email}</p>
+                <p class="modal-text cap">${users[i].location.city}</p>
+                <hr>
+                <p class="modal-text">${users[i].phone}</p>
+                <p class="modal-text">${users[i].location.street.number} ${users[i].location.street.name}, ${users[i].location.city}, ${users[i].location.state} ${users[i].location.postcode}</p>
+                <p class="modal-text">Birthday: ${users[i].dob.date}</p>
+            </div>
+          </div>
+          <div class="modal-btn-container">
+            <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+            <button type="button" id="modal-next" class="modal-next btn">Next</button>
+          </div>
+        </div>
+      `;
+      body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+  }
+
+  const exitModalButton = document.querySelector('#modal-close-btn');
+  exitModalButton.addEventListener('click', removeModal);
+}
+
+function removeModal() {
+  const modal = document.querySelector('.modal-container');
+  modal.remove();
 }
