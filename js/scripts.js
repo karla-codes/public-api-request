@@ -1,5 +1,6 @@
-const randomUserURL = 'https://randomuser.me/api/?results=12';
+const randomUserURL = 'https://randomuser.me/api/?results=12&nat=us';
 const cardGallery = document.querySelector('#gallery');
+const searchContainer = document.querySelector('.search-container');
 
 fetch(randomUserURL)
   .then(res => res.json())
@@ -7,6 +8,66 @@ fetch(randomUserURL)
   .catch(err =>
     console.log('There was an error while processing request', err)
   );
+
+/**
+ * Adds the event listener to the search submit button
+ *
+ * @param {array} names
+ */
+function addSearchEvent(names) {
+  const submitButton = document.querySelector('#search-submit');
+  submitButton.addEventListener('click', () => {
+    searchFilter(names);
+  });
+}
+
+/**
+ * Compares the search value with the employee card names. If the card name does not match,
+ * the card will be hidden. When the search value is blank, all cards are shown.
+ *
+ * @param {array} names
+ */
+function searchFilter(names) {
+  const inputValue = document
+    .querySelector('#search-input')
+    .value.toLowerCase();
+  names.forEach(name => {
+    const userName = name.textContent.toLowerCase();
+    const card = name.parentNode.parentNode;
+
+    if (!userName.includes(inputValue)) {
+      card.style.display = 'none';
+    } else if (inputValue === '') {
+      card.style.display = '';
+    }
+  });
+}
+
+/**
+ * Adds a search form to the page
+ *
+ */
+function addSearchOption() {
+  const formHTML = `
+  <form action="#" method="get">
+  <input type="search" id="search-input" class="search-input" placeholder="Search...">
+  <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+  </form>
+  `;
+  searchContainer.insertAdjacentHTML('beforeend', formHTML);
+}
+
+/**
+ * Handles running search events
+ *
+ * @param {array} users
+ */
+function handleEvents(users) {
+  const cardNames = document.querySelectorAll('#name');
+  addSearchOption();
+  addSearchEvent(cardNames);
+  addClickEvent(users);
+}
 
 /**
  * Adds an event listener to each employee info card that
@@ -24,17 +85,10 @@ function addClickEvent(users) {
 }
 
 /**
- * Removes modal when 'x' button on modal is clicked
- *
- */
-function removeModal() {
-  const modal = document.querySelector('.modal-container');
-  modal.remove();
-}
-
-/**
  * Creates a card for each employee that displays their first and last name,
- * email, and location using the information fetched from the Random User API.
+ * email, and location using the information fetched from the Random User API
+ *
+ * handleEvents is executed
  *
  * @param {array} users
  */
@@ -57,7 +111,8 @@ function createUser(users) {
     .join('');
 
   cardGallery.insertAdjacentHTML('beforeend', userCards);
-  addClickEvent(users);
+
+  handleEvents(users);
 }
 
 /**
@@ -108,4 +163,13 @@ function createUserModal(users, card) {
 
   const exitModalButton = document.querySelector('#modal-close-btn');
   exitModalButton.addEventListener('click', removeModal);
+}
+
+/**
+ * Removes modal when 'x' button on modal is clicked
+ *
+ */
+function removeModal() {
+  const modal = document.querySelector('.modal-container');
+  modal.remove();
 }
