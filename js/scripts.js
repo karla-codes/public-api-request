@@ -1,6 +1,7 @@
 const randomUserURL = 'https://randomuser.me/api/?results=12&nat=us';
 const cardGallery = document.querySelector('#gallery');
 const searchContainer = document.querySelector('.search-container');
+const body = document.querySelector('body');
 
 fetch(randomUserURL)
   .then(res => res.json())
@@ -124,19 +125,17 @@ function createUser(users) {
  */
 function createUserModal(users, card) {
   const cardName = card.querySelector('#name').textContent;
-  users.forEach(user => {
-    if (user.name.first + ' ' + user.name.last === cardName) {
-      const body = document.querySelector('body');
-      const userPhone = user.cell.replace(/[^0-9]/g, '');
-      const formattedPhone = userPhone.replace(
-        /(\d{3})(\d{3})(\d+)/,
-        '($1) $2-$3'
-      );
-      const userDOB = user.dob.date
-        .replace(/T\d+\D\d+\D\d+\D\d+Z/g, '')
-        .replace(/[^0-9]/g, '');
-      const formattedDOB = userDOB.replace(/(\d{4})(\d{2})(\d{2})/, '$2/$3/$1');
-      const modalHTML = `
+  const userModals = users.map(user => {
+    const userPhone = user.cell.replace(/[^0-9]/g, '');
+    const formattedPhone = userPhone.replace(
+      /(\d{3})(\d{3})(\d+)/,
+      '($1) $2-$3'
+    );
+    const userDOB = user.dob.date
+      .replace(/T\d+\D\d+\D\d+\D\d+Z/g, '')
+      .replace(/[^0-9]/g, '');
+    const formattedDOB = userDOB.replace(/(\d{4})(\d{2})(\d{2})/, '$2/$3/$1');
+    const modalHTML = `
         <div class="modal-container">
           <div class="modal">
             <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
@@ -157,12 +156,92 @@ function createUserModal(users, card) {
           </div>
         </div>
       `;
-      body.insertAdjacentHTML('beforeend', modalHTML);
-    }
+
+    const name = user.name.first + ' ' + user.name.last;
+    const modals = { modalHTML, name };
+    return modals;
   });
 
+  addModal(cardName, userModals);
+
+  addModalButtonEvents(userModals);
+
+  addCloseModalEvent();
+}
+
+/**
+ * Allows users to toggle between employees within the modal
+ *
+ * @param {element} button
+ * @param {array} modals
+ */
+function modalToggle(button, modals) {
+  const activeModal = button.parentNode.parentNode;
+  const modalName =
+    activeModal.childNodes[1].childNodes[3].childNodes[3].textContent;
+  if (button.textContent === 'Next') {
+    modals.forEach(modal => {
+      if (modal.name === modalName && modals.indexOf(modal) < 11) {
+        const nextIndex = modals.indexOf(modal) + 1;
+        const modalContainer = document.querySelector('.modal-container');
+        modalContainer.remove();
+        body.insertAdjacentHTML('beforeend', modals[nextIndex].modalHTML);
+        addModalButtonEvents(modals);
+        addCloseModalEvent();
+      }
+    });
+  } else if (button.textContent === 'Prev') {
+    modals.forEach(modal => {
+      if (modal.name === modalName && modals.indexOf(modal) > 0) {
+        const prevIndex = modals.indexOf(modal) - 1;
+        const modalContainer = document.querySelector('.modal-container');
+        modalContainer.remove();
+        body.insertAdjacentHTML('beforeend', modals[prevIndex].modalHTML);
+        addModalButtonEvents(modals);
+        addCloseModalEvent();
+      }
+    });
+  }
+}
+
+/**
+ * Adds event that closes a modal
+ *
+ */
+function addCloseModalEvent() {
   const exitModalButton = document.querySelector('#modal-close-btn');
   exitModalButton.addEventListener('click', removeModal);
+}
+
+/**
+ * Adds click event to 'Next' and 'Prev' modal buttons
+ *
+ * @param {array} modals
+ */
+function addModalButtonEvents(modals) {
+  const nextButton = document.querySelector('#modal-next');
+  const prevButton = document.querySelector('#modal-prev');
+  const modalButtons = [nextButton, prevButton];
+  modalButtons.forEach(button => {
+    button.addEventListener('click', e => {
+      modalToggle(e.target, modals);
+    });
+  });
+}
+
+/**
+ * Adds modal with more details on the employee who's card
+ * was clicked.
+ *
+ * @param {*} cardName
+ * @param {*} userModals
+ */
+function addModal(cardName, userModals) {
+  userModals.forEach(modal => {
+    if (modal.name === cardName) {
+      body.insertAdjacentHTML('beforeend', modal.modalHTML);
+    }
+  });
 }
 
 /**
